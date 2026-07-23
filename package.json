@@ -10,9 +10,25 @@
     "dev": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "npm --prefix backend run dev",
     "start:frontend": "npm --prefix frontend run dev",
-    "seed": "npm --prefix backend run seed"
+    "seed": "npm --prefix backend run seed",
+    "client": "npm run dev --prefix frontend",
+    "server": "npm run dev --prefix backend"
+    
+  
   },
-  "dependencies": {
-    "concurrently": "^8.2.1"
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShivaMani02/shopnest-ecom-MERN.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ShivaMani02/shopnest-ecom-MERN/issues"
+  },
+  "homepage": "https://github.com/ShivaMani02/shopnest-ecom-MERN#readme",
+  "devDependencies": {
+    "concurrently": "^10.0.3"
   }
 }

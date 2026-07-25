@@ -29,9 +29,11 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/build')));
-  
-  app.use((req, res) => {
+  // Serve static build assets
+  app.use(express.static(path.resolve(__dirname, '../frontend/build')));
+
+  // Catch-all route to serve React's index.html for client-side routing
+  app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'));
   });
 } else {

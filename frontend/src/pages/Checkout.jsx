@@ -18,7 +18,7 @@ const Checkout = () => {
 
   const handlePayment = async () => {
     try {
-      const orderRes = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/order`, {
+      const orderRes = await fetch(`/api/payment/order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: totalPrice })
@@ -35,62 +35,59 @@ const Checkout = () => {
         }
       }
 
-    const options = {
+      const options = {
+        key: 'rzp_test_TFQpACirMxgLW6', 
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'ShopNest',
+        description: 'Test Transaction',
+        order_id: orderData.id,
+        handler: async function (response) {
+          const verifyRes = await fetch(`/api/payment/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            })
+          });
 
-  key: 'rzp_test_TFQpACirMxgLW6', 
-  amount: orderData.amount,
-  currency: orderData.currency,
-  name: 'ShopNest',
-  description: 'Test Transaction',
-  order_id: orderData.id,
-  handler: async function (response) {
-  
-    const verifyRes = await fetch(`${process.env.REACT_APP_API_URL}/api/payment/verify`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        razorpay_order_id: response.razorpay_order_id,
-        razorpay_payment_id: response.razorpay_payment_id,
-        razorpay_signature: response.razorpay_signature,
-      })
-    });
-
-    if (verifyRes.ok) {
-   const saveOrderRes = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
-  method: 'POST',
-  headers: { 
-    'Content-Type': 'application/json',
-    // Ensure token Null/Undefined Na Jaye
-    Authorization: `Bearer ${user?.token || user}` 
-  },
-  body: JSON.stringify({
-    items: cartItems,
-    totalAmount: totalPrice,
-    address: address,
-    paymentId: response.razorpay_payment_id,
-    status: 'Paid'
-  })
-});
-      if (saveOrderRes.ok) {
-        dispatch(clearCart());
-        navigate('/ordersuccess');
-      } else {
-        alert('Order saving failed');
-      }
-    } else {
-      const errorData = await verifyRes.json();
-      alert('Payment verification failed: ' + (errorData.message || 'Unknown error'));
-    }
-  },
-  prefill: {
-    name: address.fullName,
-    email: user?.email,
-    contact: '9999999999'
-  },
-  theme: {
-    color: '#f97316'
-  }
-};
+          if (verifyRes.ok) {
+            const saveOrderRes = await fetch(`/api/orders`, {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user?.token || user}` 
+              },
+              body: JSON.stringify({
+                items: cartItems,
+                totalAmount: totalPrice,
+                address: address,
+                paymentId: response.razorpay_payment_id,
+                status: 'Paid'
+              })
+            });
+            if (saveOrderRes.ok) {
+              dispatch(clearCart());
+              navigate('/ordersuccess');
+            } else {
+              alert('Order saving failed');
+            }
+          } else {
+            const errorData = await verifyRes.json();
+            alert('Payment verification failed: ' + (errorData.message || 'Unknown error'));
+          }
+        },
+        prefill: {
+          name: address.fullName,
+          email: user?.email,
+          contact: '9999999999'
+        },
+        theme: {
+          color: '#f97316'
+        }
+      };
       
       const rzp1 = new window.Razorpay(options);
       rzp1.open();
@@ -99,19 +96,19 @@ const Checkout = () => {
     }
   };
 
-const bypassPayment = async () => {
-    const saveOrderRes = await fetch(`${process.env.REACT_APP_API_URL}/api/orders`, {
+  const bypassPayment = async () => {
+    const saveOrderRes = await fetch(`/api/orders`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`
+        Authorization: `Bearer ${user?.token || user}`
       },
       body: JSON.stringify({
         items: cartItems,
         totalAmount: totalPrice,
         address,
         paymentId: 'bypass_txn_' + Date.now(),
-        status: 'Paid' // 👈 Add this
+        status: 'Paid'
       })
     });
     if (saveOrderRes.ok) {

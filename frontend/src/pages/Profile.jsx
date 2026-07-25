@@ -15,14 +15,14 @@ const Profile = () => {
     }
     const fetchMyOrders = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/orders/myorders`, {
-          headers: { Authorization: `Bearer ${user.token}` }
+        const token = user?.token || user;
+        const res = await fetch(`/api/orders/myorders`, {
+          headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
         if (res.ok) {
           setOrders(Array.isArray(data) ? data : []);
         } else {
-          // Token obsolete or 401: clear and bounce
           if (res.status === 401) {
              logout();
              navigate('/login');
@@ -36,7 +36,7 @@ const Profile = () => {
       }
     };
     fetchMyOrders();
-  }, [user, navigate]);
+  }, [user, navigate, logout]);
 
   const handleLogout = () => {
     logout();
@@ -55,7 +55,7 @@ const Profile = () => {
           <h2 style={{ color: '#fff', fontSize: '2.2rem', marginBottom: '10px' }}>My Profile</h2>
           <p style={{ color: '#a1a1aa', fontSize: '1.2rem', marginBottom: '5px' }}><strong>Name:</strong> {user.name}</p>
           <p style={{ color: '#a1a1aa', fontSize: '1.2rem', marginBottom: '15px' }}><strong>Email:</strong> {user.email}</p>
-          <span style={badgeStyle}>Account Type: {user.role.toUpperCase()}</span>
+          <span style={badgeStyle}>Account Type: {user.role ? user.role.toUpperCase() : 'USER'}</span>
         </div>
         <button onClick={handleLogout} className="btn" style={{ background: '#ef4444', boxShadow: 'none' }}>Logout</button>
       </div>

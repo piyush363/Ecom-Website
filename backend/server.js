@@ -33,9 +33,9 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.resolve(__dirname, '../frontend/build')));
 
   // Catch-all route to serve React's index.html for client-side routing
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'));
-  });
+ app.get('/*splat', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../frontend/build/index.html'));
+});
 } else {
   app.get('/', (req, res) => {
     res.send('ShopNest API is running in Development mode...');
